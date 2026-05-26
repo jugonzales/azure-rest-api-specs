@@ -32,35 +32,22 @@ interface AgentOptimizationJobs {
   @doc("Create an optimization job. Returns 201 with the queued job. Honours `Operation-Id` for idempotent retry.")
   @route("agent_optimization_jobs")
   @extension("x-ms-foundry-meta", AgentOptimizationRequiredPreviews)
-  @post create is FoundryDataPlanePreviewOperation<
+  create is postJobPreview<
     FoundryFeaturesOptInKeys.agents_optimization_v1_preview,
-    {
-      ...WithOperationId;
-
-      @doc("The optimization job inputs.")
-      @body body: OptimizationJobInputs;
-    },
-    JobCreatedResponse<OptimizationJob>
+    OptimizationJob
   >;
 
   @summary("Get info about an agent optimization job.")
-  @doc("Get an optimization job by id. Returns 202 while in progress, 200 when terminal.")
+  @doc("Get an optimization job by id.")
   @route("agent_optimization_jobs/{jobId}")
   @extension("x-ms-foundry-meta", AgentOptimizationRequiredPreviews)
-  @get get is FoundryDataPlanePreviewOperation<
+  get is queryJobStatusPreview<
     FoundryFeaturesOptInKeys.agents_optimization_v1_preview,
-    {
-      /** The ID of the job. */
-      @path jobId: string;
-    },
-    OptimizationJob & {
-      @statusCode _: 200 | 202;
-      @header("Retry-After") retryAfter?: int32;
-    }
+    OptimizationJob
   >;
 
   @summary("Returns a list of agent optimization jobs.")
-  @doc("List optimization jobs. Supports cursor pagination and optional status / agentName filters.")
+  @doc("List optimization jobs. Supports cursor pagination and optional status / agent_name filters.")
   @route("agent_optimization_jobs")
   @extension("x-ms-foundry-meta", AgentOptimizationRequiredPreviews)
   list is listJobsPreview<
@@ -73,7 +60,7 @@ interface AgentOptimizationJobs {
 
       @doc("Filter to jobs targeting this agent name.")
       @query
-      agentName?: string;
+      agent_name?: string;
     }
   >;
 
