@@ -38,12 +38,19 @@ interface AgentOptimizationJobs {
   >;
 
   @summary("Get info about an agent optimization job.")
-  @doc("Get an optimization job by id.")
+  @doc("Get an optimization job by id. Returns 202 Accepted while in progress, 200 OK when terminal.")
   @route("agent_optimization_jobs/{jobId}")
   @extension("x-ms-foundry-meta", AgentOptimizationRequiredPreviews)
-  get is queryJobStatusPreview<
+  @get get is FoundryDataPlanePreviewOperation<
     FoundryFeaturesOptInKeys.agents_optimization_v1_preview,
-    OptimizationJob
+    {
+      /** The ID of the job. */
+      @path jobId: string;
+    },
+    OptimizationJob & {
+      @statusCode _: 200 | 202;
+      @header("Retry-After") retryAfter?: int32;
+    }
   >;
 
   @summary("Returns a list of agent optimization jobs.")
